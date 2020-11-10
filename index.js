@@ -26,8 +26,14 @@ class Transaction {
 
   commit() {
     this.time = new Date()
-    this.account.addTransaction(this)
+    if (this.isAllowed()) {
+      this.account.addTransaction(this)
+    } else {
+      console.log('Insufficient funds to process this withdrawal')
+      return 'Insufficient funds to process this withdrawal'
+    }
   }
+
 }
 
 
@@ -35,12 +41,21 @@ class Withdrawal extends Transaction {
   get value() {
     return -1 * this.amount
   }
+
+  isAllowed() {
+    return (this.account.balance + this.value) >= 0
+  }
+
 }
 
 
 class Deposit extends Transaction {
   get value() {
     return this.amount;
+  }
+
+  isAllowed() {
+    return (this.account.balance + this.value) >= 0
   }
 }
 
@@ -51,19 +66,22 @@ class Deposit extends Transaction {
 const myAccount = new Account("sillyBilly");
 console.log('Starting balance:', myAccount.balance);
 
-t1 = new Withdrawal(50.25, myAccount);
-t1.commit();
-// console.log('Transactions 1:', t1.transactions);
-
-t2 = new Withdrawal(9.99, myAccount);
-t2.commit();
-// console.log('Transaction 2:', t2);
-
-t3 = new Deposit(120.00, myAccount);
+t3 = new Deposit(100.00, myAccount);
 // console.log("t3.value:::", t3.value)
 t3.commit();
 // console.log('Transaction 3:', t3);
-
-console.log(myAccount);
-
 console.log('Balance:', myAccount.balance);
+
+t1 = new Withdrawal(110, myAccount);
+t1.commit();
+// console.log('Transactions 1:', t1.transactions);
+console.log('Balance:', myAccount.balance);
+
+t2 = new Withdrawal(100, myAccount);
+t2.commit();
+// console.log('Transaction 2:', t2);
+console.log('Balance:', myAccount.balance);
+
+
+// console.log(myAccount);
+
